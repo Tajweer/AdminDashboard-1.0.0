@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { colors } from '../constants/colors';
+import Logo from '../assets/Logo.png';
 
 export default function Main() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function Main() {
     <main className="main-page">
       <div className="landing-container animate-fade-in-scale">
         <div className="header animate-float">
-          <img src="/src/assets/Logo.png" alt="Tajweer Logo" />
+          <img src={Logo} alt="Tajweer Logo" />
           <h2>Welcome to Tajweer</h2>
         </div>
 

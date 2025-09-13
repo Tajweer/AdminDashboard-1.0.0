@@ -124,7 +124,13 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <div className="dashboard-header animate-fade-in">
+      <div className="dashboard-header animate-fade-in" style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: 'var(--spacing-2xl)',
+        gap: 'var(--spacing-lg)'
+      }}>
         <div>
           <h1>My Dashboard</h1>
           <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0', fontSize: '1.1rem' }}>

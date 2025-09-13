@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
-import icon from '../assets/Logo.png';
+import Logo from '../assets/Logo.png';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export default function Header() {
     <header className="header-navbar">
       <div className="header-container">
         <Link to="/" className="header-logo" onClick={closeMobileMenu}>
-          <img src={icon} alt="Logo" />
+          <img src={Logo} alt="Logo" />
           <span>Tajweer</span>
         </Link>
 

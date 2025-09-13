@@ -1,6 +1,7 @@
 import React from 'react';
 import { HelpCircle, Mail, Shield, Zap, Globe } from 'lucide-react';
 import '../App.css';
+import Logo from '../assets/Logo.png';
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
       <div className="footer-content">
         <div className="footer-left">
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-sm)' }}>
-            <img src="/src/assets/Logo.png" alt="Tajweer Logo" style={{ height: '24px', width: '24px' }} />
+            <img src={Logo} alt="Tajweer Logo" style={{ height: '24px', width: '24px' }} />
             <span style={{ fontWeight: '700', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Tajweer</span>
           </div>
           <p style={{ margin: '0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>

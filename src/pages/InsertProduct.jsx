@@ -5,6 +5,7 @@ import { addProduct, updateProduct, fetchProducts, checkProductAuction } from '.
 import config from '../config/config.js';
 import errorHandler from '../utils/errorHandler';
 import { colors } from '../constants/colors';
+import Logo from '../assets/Logo.png';
 import '../App.css';
 
 export default function InsertProduct() {
@@ -144,7 +145,7 @@ export default function InsertProduct() {
       <div className="form-page">
       <div className="form-container animate-fade-in-scale">
         <div className="header animate-float" style={{ marginBottom: 'var(--spacing-2xl)' }}>
-          <img src="/src/assets/Logo.png" alt="Tajweer Logo" />
+          <img src={Logo} alt="Tajweer Logo" />
           <h2>{editId ? 'Edit Product' : 'Add New Product'}</h2>
         </div>
 
