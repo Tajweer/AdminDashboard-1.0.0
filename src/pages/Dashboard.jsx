@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { fetchOrders, fetchProducts, clearAuthData } from '../services/api';
+import { fetchOrders, fetchProducts, deleteProduct, clearAuthData } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { formatPrice } from '../utils/currency.jsx';
 import config from '../config/config.js';
+import { colors } from '../constants/colors';
 import '../App.css';
 
 export default function Dashboard() {
@@ -50,6 +51,24 @@ export default function Dashboard() {
   const handleAdd = () => navigate('/add-product');
   const handleEdit = (productId) => navigate(`/add-product?edit=${productId}`);
 
+  const handleDelete = async (productId, productTitle) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${productTitle}"? This action cannot be undone.`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      await deleteProduct(productId);
+      // Remove the product from the local state
+      setProducts(products.filter(prod => prod.id !== productId));
+      alert('Product deleted successfully!');
+    } catch (err) {
+      console.error("Error deleting product:", err.response?.data || err.message);
+      alert(`Error deleting product: ${err.message || 'Unknown error'}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -90,7 +109,7 @@ export default function Dashboard() {
             style={{
               padding: '8px 16px',
               backgroundColor: 'var(--primary-color)',
-              color: 'white',
+              color: colors.text.inverse,
               border: 'none',
               borderRadius: 'var(--radius-md)',
               cursor: 'pointer'
@@ -145,7 +164,7 @@ export default function Dashboard() {
             background: 'var(--gradient-primary)'
           }}></div>
           <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📦</div>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--primary-color)', marginBottom: '4px' }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: colors.primary, marginBottom: '4px' }}>
             {products.length}
           </div>
           <div style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Total Products</div>
@@ -170,7 +189,7 @@ export default function Dashboard() {
             background: 'var(--gradient-primary)'
           }}></div>
           <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🛒</div>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--success-color)', marginBottom: '4px' }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: colors.success, marginBottom: '4px' }}>
             {orders.length}
           </div>
           <div style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Total Orders</div>
@@ -195,7 +214,7 @@ export default function Dashboard() {
             background: 'var(--gradient-primary)'
           }}></div>
           <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>💰</div>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--warning-color)', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <div style={{ fontSize: '2rem', fontWeight: '700', color: colors.warning, marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             {formatPrice(orders.reduce((sum, order) => sum + parseFloat(order.total_amount || 0), 0), true, 24)}
           </div>
           <div style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Total Revenue</div>
@@ -288,7 +307,7 @@ export default function Dashboard() {
               style={{
                 marginTop: '16px',
                 background: 'var(--gradient-primary)',
-                color: 'white',
+                color: colors.text.inverse,
                 border: 'none',
                 padding: '12px 24px',
                 borderRadius: 'var(--radius-full)',
@@ -334,6 +353,16 @@ export default function Dashboard() {
                 <div className="card-actions">
                   <button onClick={() => handleEdit(prod.id)}>
                     <span>✏️</span> Edit Product
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(prod.id, prod.title)}
+                    style={{ 
+                      backgroundColor: colors.error, 
+                      color: colors.text.inverse,
+                      border: 'none'
+                    }}
+                  >
+                    <span>🗑️</span> Delete Product
                   </button>
                 </div>
               </div>

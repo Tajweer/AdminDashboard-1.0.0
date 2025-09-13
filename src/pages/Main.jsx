@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { colors } from '../constants/colors';
 
 export default function Main() {
   const navigate = useNavigate();
   const location = useLocation();
   const message = location.state?.message;
-  const messageColor = location.state?.color || 'green';
+  const messageColor = location.state?.color || colors.success;
 
   useEffect(() => {
     if (location.state) {
@@ -28,7 +29,7 @@ export default function Main() {
 
         {message && (
           <div 
-            className={`animate-fade-in ${messageColor === 'red' ? 'error-message' : 'success'}`}
+            className={`animate-fade-in ${messageColor === colors.error ? 'error-message' : 'success'}`}
             style={{ 
               marginTop: '20px',
               textAlign: 'center',
@@ -61,40 +62,40 @@ export default function Main() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
           gap: '20px',
-          opacity: '0.8'
+          opacity: '1'
         }}>
           <div className="feature-item" style={{
             textAlign: 'center',
             padding: '16px',
-            background: 'var(--primary-color)',
-            opacity: '0.1',
+            background: 'var(--background-tertiary)',
             borderRadius: '12px',
-            border: '1px solid var(--primary-color)'
+            border: '1px solid var(--border-color)',
+            transition: 'all 0.3s ease'
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '8px' }}>⚡</div>
-            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>Fast Setup</div>
+            <div style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--primary-color)' }}>⚡</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Fast Setup</div>
           </div>
           <div className="feature-item" style={{
             textAlign: 'center',
             padding: '16px',
-            background: 'var(--primary-color)',
-            opacity: '0.1',
+            background: 'var(--background-tertiary)',
             borderRadius: '12px',
-            border: '1px solid var(--primary-color)'
+            border: '1px solid var(--border-color)',
+            transition: 'all 0.3s ease'
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '8px' }}>🛡️</div>
-            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>Secure</div>
+            <div style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--primary-color)' }}>🛡️</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Secure</div>
           </div>
           <div className="feature-item" style={{
             textAlign: 'center',
             padding: '16px',
-            background: 'var(--primary-color)',
-            opacity: '0.1',
+            background: 'var(--background-tertiary)',
             borderRadius: '12px',
-            border: '1px solid var(--primary-color)'
+            border: '1px solid var(--border-color)',
+            transition: 'all 0.3s ease'
           }}>
-            <div style={{ fontSize: '24px', marginBottom: '8px' }}>📱</div>
-            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>Mobile Ready</div>
+            <div style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--primary-color)' }}>📱</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Mobile Ready</div>
           </div>
         </div>
       </div>

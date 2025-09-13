@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { addProduct, updateProduct, fetchProducts, checkProductAuction } from '../services/api';
 import config from '../config/config.js';
 import errorHandler from '../utils/errorHandler';
+import { colors } from '../constants/colors';
 import '../App.css';
 
 export default function InsertProduct() {
@@ -394,14 +395,19 @@ export default function InsertProduct() {
                 className="product-type-option"
                 style={{
                   padding: 'var(--spacing-lg)',
-                  background: productType === 'normal' ? 'var(--gradient-primary)' : 'var(--card-background)',
-                  opacity: productType === 'normal' ? '0.05' : '1',
+                  background: productType === 'normal' 
+                    ? colors.productTypes.normal.background
+                    : colors.background.card,
                   borderRadius: 'var(--radius-lg)',
-                  border: `2px solid ${productType === 'normal' ? 'var(--primary-color)' : 'var(--border-color)'}`,
+                  border: `3px solid ${productType === 'normal' ? colors.primary : colors.border.color}`,
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   position: 'relative',
-                  boxShadow: productType === 'normal' ? 'var(--shadow-glow)' : 'none'
+                  boxShadow: productType === 'normal' 
+                    ? colors.productTypes.normal.shadow
+                    : colors.shadows.sm,
+                  transform: productType === 'normal' ? 'scale(1.02)' : 'scale(1)',
+                  zIndex: productType === 'normal' ? '2' : '1'
                 }}
                 onClick={() => setValue('product_type', 'normal')}
               >
@@ -419,6 +425,25 @@ export default function InsertProduct() {
                     cursor: 'pointer'
                   }}
                 />
+                {productType === 'normal' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 'var(--spacing-md)',
+                    right: 'var(--spacing-md)',
+                    width: '20px',
+                    height: '20px',
+                    background: colors.primary,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: colors.text.inverse,
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    ✓
+                  </div>
+                )}
                 <div style={{ 
                   fontSize: '2rem', 
                   marginBottom: 'var(--spacing-md)',
@@ -430,7 +455,7 @@ export default function InsertProduct() {
                   fontSize: '1.1rem', 
                   fontWeight: '600', 
                   marginBottom: 'var(--spacing-sm)',
-                  color: 'var(--text-primary)',
+                  color: productType === 'normal' ? colors.primary : colors.text.primary,
                   textAlign: 'center'
                 }}>
                   Normal Product
@@ -450,14 +475,19 @@ export default function InsertProduct() {
                 className="product-type-option"
                 style={{
                   padding: 'var(--spacing-lg)',
-                  background: productType === 'auction' ? 'var(--gradient-primary)' : 'var(--card-background)',
-                  opacity: productType === 'auction' ? '0.05' : '1',
+                  background: productType === 'auction' 
+                    ? colors.productTypes.auction.background
+                    : colors.background.card,
                   borderRadius: 'var(--radius-lg)',
-                  border: `2px solid ${productType === 'auction' ? 'var(--primary-color)' : 'var(--border-color)'}`,
+                  border: `3px solid ${productType === 'auction' ? colors.success : colors.border.color}`,
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   position: 'relative',
-                  boxShadow: productType === 'auction' ? 'var(--shadow-glow)' : 'none'
+                  boxShadow: productType === 'auction' 
+                    ? colors.productTypes.auction.shadow
+                    : colors.shadows.sm,
+                  transform: productType === 'auction' ? 'scale(1.02)' : 'scale(1)',
+                  zIndex: productType === 'auction' ? '2' : '1'
                 }}
                 onClick={() => setValue('product_type', 'auction')}
               >
@@ -475,6 +505,25 @@ export default function InsertProduct() {
                     cursor: 'pointer'
                   }}
                 />
+                {productType === 'auction' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 'var(--spacing-md)',
+                    right: 'var(--spacing-md)',
+                    width: '20px',
+                    height: '20px',
+                    background: colors.success,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: colors.text.inverse,
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    ✓
+                  </div>
+                )}
                 <div style={{ 
                   fontSize: '2rem', 
                   marginBottom: 'var(--spacing-md)',
@@ -486,7 +535,7 @@ export default function InsertProduct() {
                   fontSize: '1.1rem', 
                   fontWeight: '600', 
                   marginBottom: 'var(--spacing-sm)',
-                  color: 'var(--text-primary)',
+                  color: productType === 'auction' ? colors.success : colors.text.primary,
                   textAlign: 'center'
                 }}>
                   Auction Product
@@ -505,18 +554,35 @@ export default function InsertProduct() {
             {errors.product_type && <span className="error" style={{ display: 'block', textAlign: 'center', marginTop: 'var(--spacing-md)' }}>{errors.product_type.message}</span>}
             
             <div style={{
-              padding: 'var(--spacing-md)',
-              background: 'var(--info-color)',
-              opacity: '0.1',
+              padding: 'var(--spacing-lg)',
+              background: colors.productTypes.normal.background,
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--info-color)'
+              border: `2px solid ${colors.productTypes.normal.border}`,
+              boxShadow: colors.shadows.sm,
+              marginTop: 'var(--spacing-lg)'
             }}>
               <div style={{ 
-                fontSize: '0.9rem', 
-                color: 'var(--text-muted)',
-                lineHeight: '1.5'
+                fontSize: '1rem', 
+                color: colors.text.primary,
+                lineHeight: '1.6',
+                textAlign: 'center',
+                fontWeight: '500'
               }}>
-                <strong>ℹ️ Note:</strong> Choose "Normal Product" for home page with price dropping, or "Auction Product" for competitive bidding rooms.
+                <span style={{ 
+                  color: colors.primary, 
+                  fontWeight: '700',
+                  fontSize: '1.1rem'
+                }}>
+                  ℹ️ Note:
+                </span>
+                <br />
+                <span style={{ 
+                  color: colors.text.primary,
+                  marginTop: 'var(--spacing-sm)',
+                  display: 'inline-block'
+                }}>
+                  Choose <strong style={{ color: colors.primary }}>"Normal Product"</strong> for home page with price dropping, or <strong style={{ color: colors.success }}>"Auction Product"</strong> for competitive bidding rooms.
+                </span>
               </div>
             </div>
           </div>

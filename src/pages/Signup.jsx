@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signupUser } from '../services/api';
+import Logo from '../assets/Logo.png';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -49,7 +50,7 @@ export default function Signup() {
     <main className="main-page">
       <div className="landing-container animate-fade-in-scale">
         <div className="header animate-float">
-          <img src="/src/assets/Logo.png" alt="Tajweer Logo" />
+          <img src={Logo} alt="Tajweer Logo" />
           <h2>Join Tajweer</h2>
         </div>
 

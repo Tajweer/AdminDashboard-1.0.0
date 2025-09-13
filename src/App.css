@@ -54,6 +54,20 @@
   --transition-slow: 500ms ease;
 }
 
+/* App Layout - Sticky Footer */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background-primary: #0F172A;
@@ -223,10 +237,10 @@ p {
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--glass-border);
   padding: var(--spacing-2xl) var(--spacing-xl);
-  margin-top: var(--spacing-3xl);
   box-shadow: var(--glass-shadow);
   position: relative;
   overflow: hidden;
+  margin-top: auto; /* Push footer to bottom */
 }
 
 .footer-modern::before {
@@ -2934,7 +2948,13 @@ button:active {
 .feature-item:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  background: rgba(116, 98, 246, 0.15);
+  background: var(--card-background);
+  border-color: var(--primary-color);
+}
+
+.feature-item:hover div:first-child {
+  transform: scale(1.1);
+  color: var(--secondary-color);
 }
 
 /* Form Styles for Login/Signup within landing-container */

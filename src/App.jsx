@@ -17,18 +17,19 @@ export default function App() {
   const showFooter = !hideFooterOn.includes(pathname);
 
   return (
-    <>
+    <div className="app-layout">
       <Header />
-      <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/otp" element={<OTP />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add-product" element={<InsertProduct />} />
-      </Routes>
-
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/otp" element={<OTP />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/add-product" element={<InsertProduct />} />
+        </Routes>
+      </main>
       {showFooter && <Footer />}
-    </>
+    </div>
   );
 }

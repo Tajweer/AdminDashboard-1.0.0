@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
+import { colors } from '../constants/colors';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function Login() {
         navigate('/', {
           state: {
             message,
-            color: message.includes('authorized') ? 'red' : 'green',
+            color: message.includes('authorized') ? colors.error : colors.success,
           },
         });
       } else {

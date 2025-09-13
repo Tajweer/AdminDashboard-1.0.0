@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { verifyOTP } from '../services/api';
 import Header from '../components/Header';
+import { colors } from '../constants/colors';
 
 export default function OTP() {
   const [otp, setOtp] = useState('');
   const [message, setMessage] = useState('');
-  const [messageColor, setMessageColor] = useState('green');
+  const [messageColor, setMessageColor] = useState(colors.success);
   const navigate = useNavigate();
 
   const phone = localStorage.getItem("phone");
@@ -16,11 +17,11 @@ export default function OTP() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
-    setMessageColor('green');
+    setMessageColor(colors.success);
 
     if (!phone) {
       setMessage("Phone number not found. Please register again.");
-      setMessageColor('red');
+      setMessageColor(colors.error);
       return;
     }
 
@@ -39,7 +40,7 @@ export default function OTP() {
         navigate("/", {
           state: {
             message: "Your account is under review. Please wait.",
-            color: "green",
+            color: colors.success,
           },
         });
       }
@@ -91,7 +92,7 @@ export default function OTP() {
 
         {message && (
           <div 
-            className={`animate-fade-in ${messageColor === 'red' ? 'error-message' : 'success'}`}
+            className={`animate-fade-in ${messageColor === colors.error ? 'error-message' : 'success'}`}
             style={{ 
               marginTop: '10px', 
               textAlign: 'center',

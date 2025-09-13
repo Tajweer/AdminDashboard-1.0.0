@@ -206,6 +206,46 @@ export const updateProduct = async (id, formData) => {
   }
 };
 
+export const deleteProduct = async (id) => {
+  const token = getToken();
+  
+  if (!token) {
+    throw new Error("No authentication token found. Please log in again.");
+  }
+  
+  if (!isTokenValid()) {
+    clearAuthData();
+    throw new Error("Authentication token has expired. Please log in again.");
+  }
+
+  try {
+    const res = await api.delete(`/products/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { data: res.data };
+  } catch (error) {
+    console.error("Error deleting product:", error.response?.data || error.message);
+    console.error("Error status:", error.response?.status);
+    
+    if (error.response?.status === 401) {
+      clearAuthData();
+      throw new Error("Authentication expired. Please log in again.");
+    }
+    
+    if (error.response?.status === 403) {
+      throw new Error("You don't have permission to delete this product.");
+    }
+    
+    if (error.response?.status === 404) {
+      throw new Error("Product not found.");
+    }
+    
+    throw error;
+  }
+};
+
 export const fetchOrders = async () => {
   const token = getToken();
   
