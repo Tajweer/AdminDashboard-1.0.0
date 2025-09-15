@@ -13,7 +13,8 @@ const api = axios.create({
 // Setup error interceptor
 setupErrorInterceptor(api);
 
-const getToken = () => localStorage.getItem("token") || "";
+const getToken = () => localStorage.getItem("accessToken") || localStorage.getItem("token") || "";
+const getRefreshToken = () => localStorage.getItem("refreshToken") || "";
 const getPhone = () => localStorage.getItem("phone") || "";
 
 export const isTokenValid = () => {
@@ -32,6 +33,8 @@ export const isTokenValid = () => {
 
 export const clearAuthData = () => {
   localStorage.removeItem("token");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
   localStorage.removeItem("phone");
 };
 
@@ -95,7 +98,11 @@ export const verifyOTP = async ({ otp, phone }) => {
     const res = await api.post("/auth/verify-otp", { phone: phoneToUse, otp });
 
     if (res.data.access_token) {
-      localStorage.setItem("token", res.data.access_token);
+      localStorage.setItem("accessToken", res.data.access_token);
+      localStorage.setItem("token", res.data.access_token); // Backward compatibility
+    }
+    if (res.data.refresh_token) {
+      localStorage.setItem("refreshToken", res.data.refresh_token);
     }
     return res.data;
   } catch (error) {
@@ -104,7 +111,31 @@ export const verifyOTP = async ({ otp, phone }) => {
   }
 };
 
-export const fetchProducts = async () => {
+export const refreshAccessToken = async () => {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+
+  try {
+    const res = await api.post("/auth/refresh", {
+      refresh_token: refreshToken,
+    });
+
+    if (res.data.access_token) {
+      localStorage.setItem("accessToken", res.data.access_token);
+      localStorage.setItem("token", res.data.access_token); // Backward compatibility
+      return res.data.access_token;
+    }
+    throw new Error("Invalid refresh response");
+  } catch (error) {
+    clearAuthData();
+    throw new Error("Failed to refresh token");
+  }
+};
+
+// Helper function to make authenticated API calls with automatic token refresh
+const makeAuthenticatedRequest = async (requestFn) => {
   const token = getToken();
   
   if (!token) {
@@ -112,40 +143,47 @@ export const fetchProducts = async () => {
   }
   
   if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
+    // Try to refresh the token
+    try {
+      await refreshAccessToken();
+    } catch (error) {
+      clearAuthData();
+      throw new Error("Authentication token has expired. Please log in again.");
+    }
   }
   
   try {
+    return await requestFn();
+  } catch (error) {
+    if (error.response?.status === 401) {
+      // Token might be invalid, try to refresh once more
+      try {
+        await refreshAccessToken();
+        return await requestFn();
+      } catch (refreshError) {
+        clearAuthData();
+        throw new Error("Authentication expired. Please log in again.");
+      }
+    }
+    throw error;
+  }
+};
+
+export const fetchProducts = async () => {
+  return makeAuthenticatedRequest(async () => {
+    const token = getToken();
     const res = await api.get("/products/mine", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return { data: res.data };
-  } catch (error) {
-    if (error.response?.status === 401) {
-      clearAuthData();
-      throw new Error("Authentication expired. Please log in again.");
-    }
-    
-    throw error;
-  }
+  });
 };
 
 export const addProduct = async (formData) => {
-  const token = getToken();
-  
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-  
-  if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
-  }
-
-  try {
+  return makeAuthenticatedRequest(async () => {
+    const token = getToken();
     const res = await api.post("/products/", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -153,39 +191,12 @@ export const addProduct = async (formData) => {
       },
     });
     return { data: res.data };
-  } catch (error) {
-    console.error("Error adding product:", error.response?.data || error.message);
-    console.error("Error status:", error.response?.status);
-    console.error("Error headers:", error.response?.headers);
-    console.error("Full error response:", error.response);
-    
-    if (error.response?.status === 401) {
-      clearAuthData();
-      throw new Error("Authentication expired. Please log in again.");
-    }
-    
-    if (error.response?.status === 500) {
-      console.error("Server error details:", error.response?.data);
-      throw new Error(`Server error: ${error.response?.data?.detail || 'Internal server error'}`);
-    }
-    
-    throw error;
-  }
+  });
 };
 
 export const updateProduct = async (id, formData) => {
-  const token = getToken();
-  
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-  
-  if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
-  }
-
-  try {
+  return makeAuthenticatedRequest(async () => {
+    const token = getToken();
     const res = await api.put(`/products/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -193,113 +204,45 @@ export const updateProduct = async (id, formData) => {
       },
     });
     return { data: res.data };
-  } catch (error) {
-    console.error("Error updating product:", error.response?.data || error.message);
-    console.error("Error status:", error.response?.status);
-    
-    if (error.response?.status === 401) {
-      clearAuthData();
-      throw new Error("Authentication expired. Please log in again.");
-    }
-    
-    throw error;
-  }
+  });
 };
 
 export const deleteProduct = async (id) => {
-  const token = getToken();
-  
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-  
-  if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
-  }
-
-  try {
+  return makeAuthenticatedRequest(async () => {
+    const token = getToken();
     const res = await api.delete(`/products/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return { data: res.data };
-  } catch (error) {
-    console.error("Error deleting product:", error.response?.data || error.message);
-    console.error("Error status:", error.response?.status);
-    
-    if (error.response?.status === 401) {
-      clearAuthData();
-      throw new Error("Authentication expired. Please log in again.");
-    }
-    
-    if (error.response?.status === 403) {
-      throw new Error("You don't have permission to delete this product.");
-    }
-    
-    if (error.response?.status === 404) {
-      throw new Error("Product not found.");
-    }
-    
-    throw error;
-  }
+  });
 };
 
 export const fetchOrders = async () => {
-  const token = getToken();
-  
-  debugToken();
-  
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-  
-  if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
-  }
-  
-  try {
+  return makeAuthenticatedRequest(async () => {
+    debugToken();
+    const token = getToken();
     const res = await api.get("/orders/by-owned-products", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return { data: res.data };
-  } catch (error) {
-    console.error("Error fetching orders:", error.response?.data || error.message);
-    console.error("Error status:", error.response?.status);
-    console.error("Error headers:", error.response?.headers);
-    
-    if (error.response?.status === 401) {
-      clearAuthData();
-      throw new Error("Authentication expired. Please log in again.");
-    }
-    
-    throw error;
-  }
+  });
 };
 
 export const checkProductAuction = async (productId) => {
-  const token = getToken();
-  
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-  
-  if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
-  }
-  
   try {
-    const res = await api.get(`/auctions/product/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    return await makeAuthenticatedRequest(async () => {
+      const token = getToken();
+      const res = await api.get(`/auctions/product/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return { data: res.data, hasAuction: true };
     });
-    return { data: res.data, hasAuction: true };
   } catch (error) {
     if (error.response?.status === 404) {
       return { data: null, hasAuction: false };
@@ -312,26 +255,13 @@ export const checkProductAuction = async (productId) => {
 };
 
 export const removeProductAuction = async (productId) => {
-  const token = getToken();
-  
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-  
-  if (!isTokenValid()) {
-    clearAuthData();
-    throw new Error("Authentication token has expired. Please log in again.");
-  }
-  
-  try {
+  return makeAuthenticatedRequest(async () => {
+    const token = getToken();
     const res = await api.delete(`/auctions/product/${productId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return { data: res.data };
-  } catch (error) {
-    console.error("Error removing product auction:", error.response?.data || error.message);
-    throw error;
-  }
+  });
 };

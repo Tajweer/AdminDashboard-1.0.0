@@ -122,6 +122,10 @@ const ERROR_MESSAGES = {
     en: "File size is too large",
     ar: "حجم الملف كبير جداً"
   },
+  VAL_013: {
+    en: "Please enter numbers in English (0-9) instead of Arabic numerals",
+    ar: "يرجى إدخال الأرقام باللغة الإنجليزية (0-9) بدلاً من الأرقام العربية"
+  },
 
   // User Management Errors
   USER_001: {
@@ -421,6 +425,82 @@ export function validateName(name) {
   return nameRegex.test(name.trim());
 }
 
+// Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩)
+const ARABIC_DIGITS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+// English digits (0123456789)
+const ENGLISH_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+/**
+ * Checks if a string contains Arabic-Indic digits
+ * @param {string} value - The input value to check
+ * @returns {boolean} - True if Arabic digits are found
+ */
+export function containsArabicDigits(value) {
+  if (!value || typeof value !== 'string') return false;
+  return ARABIC_DIGITS.some(digit => value.includes(digit));
+}
+
+/**
+ * Converts Arabic-Indic digits to English digits
+ * @param {string} value - The input value to convert
+ * @returns {string} - The converted value with English digits
+ */
+export function convertArabicToEnglish(value) {
+  if (!value || typeof value !== 'string') return value;
+  
+  let converted = value;
+  ARABIC_DIGITS.forEach((arabicDigit, index) => {
+    converted = converted.replace(new RegExp(arabicDigit, 'g'), ENGLISH_DIGITS[index]);
+  });
+  return converted;
+}
+
+/**
+ * Validates if a number input contains Arabic digits
+ * @param {string} value - The input value to validate
+ * @returns {object} - Validation result with isValid and errorCode
+ */
+export function validateNumberInput(value) {
+  if (!value || typeof value !== 'string') {
+    return { isValid: true, errorCode: null };
+  }
+
+  if (containsArabicDigits(value)) {
+    return {
+      isValid: false,
+      errorCode: 'VAL_013'
+    };
+  }
+
+  return { isValid: true, errorCode: null };
+}
+
+/**
+ * Custom validation function for react-hook-form
+ * @param {string} value - The input value to validate
+ * @returns {string|true} - Error message or true if valid
+ */
+export function arabicNumberValidator(value) {
+  const validation = validateNumberInput(value);
+  return validation.isValid ? true : getLocalizedErrorMessage(validation.errorCode);
+}
+
+/**
+ * Input change handler that automatically converts Arabic digits to English
+ * @param {Event} event - The input change event
+ * @param {Function} setValue - React Hook Form setValue function
+ * @param {string} fieldName - The field name
+ */
+export function handleNumberInputChange(event, setValue, fieldName) {
+  const inputValue = event.target.value;
+  
+  if (containsArabicDigits(inputValue)) {
+    const convertedValue = convertArabicToEnglish(inputValue);
+    setValue(fieldName, convertedValue);
+  }
+}
+
 // Show error notification
 export function showErrorNotification(message, duration = 5000) {
   // This would integrate with your notification system
@@ -465,6 +545,11 @@ export default {
   validatePrice,
   validatePriceComparison,
   validateName,
+  containsArabicDigits,
+  convertArabicToEnglish,
+  validateNumberInput,
+  arabicNumberValidator,
+  handleNumberInputChange,
   showErrorNotification,
   showSuccessNotification,
   setupErrorInterceptor,

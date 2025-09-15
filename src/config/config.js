@@ -1,5 +1,5 @@
 const config = {
-  production: true, // Set to true for production, false for development
+  production: false, // Set to true for production, false for development
   
   api: {
     baseUrl: {

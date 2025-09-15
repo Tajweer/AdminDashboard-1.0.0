@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { addProduct, updateProduct, fetchProducts, checkProductAuction } from '../services/api';
 import config from '../config/config.js';
-import errorHandler from '../utils/errorHandler';
+import errorHandler, { arabicNumberValidator, handleNumberInputChange } from '../utils/errorHandler';
 import { colors } from '../constants/colors';
 import Logo from '../assets/Logo.png';
 import '../App.css';
@@ -312,7 +312,11 @@ export default function InsertProduct() {
                   placeholder="0.00"
                   {...register('initial_price', { 
                     required: 'Initial price is required',
-                    onChange: () => {
+                    validate: arabicNumberValidator,
+                    onChange: (e) => {
+                      // Handle Arabic number conversion
+                      handleNumberInputChange(e, setValue, 'initial_price');
+                      
                       // Trigger re-validation of minimum price when initial price changes
                       const minimumPrice = watch('minimum_price');
                       if (minimumPrice) {
@@ -340,6 +344,13 @@ export default function InsertProduct() {
                   {...register('minimum_price', { 
                     required: 'Minimum price is required',
                     validate: (value) => {
+                      // First check for Arabic numbers
+                      const arabicValidation = arabicNumberValidator(value);
+                      if (arabicValidation !== true) {
+                        return arabicValidation;
+                      }
+                      
+                      // Then check price comparison
                       const initialPrice = watch('initial_price');
                       if (initialPrice) {
                         const priceValidation = errorHandler.validatePriceComparison(
@@ -351,6 +362,10 @@ export default function InsertProduct() {
                         }
                       }
                       return true;
+                    },
+                    onChange: (e) => {
+                      // Handle Arabic number conversion
+                      handleNumberInputChange(e, setValue, 'minimum_price');
                     }
                   })}
                 />
@@ -362,7 +377,14 @@ export default function InsertProduct() {
                   type="number"
                   min="0"
                   placeholder="0"
-                  {...register('quantity', { required: 'Quantity is required' })}
+                  {...register('quantity', { 
+                    required: 'Quantity is required',
+                    validate: arabicNumberValidator,
+                    onChange: (e) => {
+                      // Handle Arabic number conversion
+                      handleNumberInputChange(e, setValue, 'quantity');
+                    }
+                  })}
                 />
                 {errors.quantity && <span className="error">{errors.quantity.message}</span>}
               </div>
